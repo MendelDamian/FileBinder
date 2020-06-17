@@ -2,11 +2,21 @@ import os
 
 
 class SkipFiles:
-    def __init__(self, filename='skip.txt'):
+    def __init__(self):
+        '''Skipping files while scanning.
+        '''
         self._files = set()
-        self._filename = filename
-
+        self._filename = 'skip.txt'
+        self.create_file()
         self.read()
+
+    def create_file(self):
+        '''Creates file with defaults settings if doesn't exist.
+        '''
+        if not os.path.isfile(self._filename):
+            with open(self._filename, 'w') as f:
+                for el in self._files:
+                    f.write(f'{el}\n')
 
     def read(self):
         '''Read file where are all files to skip.
@@ -50,25 +60,26 @@ class SkipFiles:
                 f.write(f'{fn}\n')
 
     def get(self):
-        '''Return list of excluded files.'''
+        '''Return list of excluded files.
+        '''
         return self._files
 
-    def edit_filename(self, new_filename):
-        '''Edit filename of exclusion list.
+    # def edit_filename(self, new_filename):
+    #     '''Edit filename of exclusion list.
         
-        args:
-            new_filename: Name of new file
-        '''
-        # Check if filename is not empty.
-        if not new_filename:
-            raise ValueError('Filename cannot be empty.')
+    #     args:
+    #         new_filename: Name of new file
+    #     '''
+    #     # Check if filename is not empty.
+    #     if not new_filename:
+    #         raise ValueError('Filename cannot be empty.')
 
-        # Check if filename has .txt extension.
-        if new_filename[-4:] != '.txt':
-            new_filename = f'{new_filename}.txt'
+    #     # Check if filename has .txt extension.
+    #     if new_filename[-4:] != '.txt':
+    #         new_filename = f'{new_filename}.txt'
 
-        os.rename(self._filename, new_filename)
-        self._filename = new_filename
+    #     os.rename(self._filename, new_filename)
+    #     self._filename = new_filename
 
     def remove(self, excluded):
         '''Remove specific registration from set and file.
@@ -98,7 +109,8 @@ class SkipFiles:
                     f.write(f'{line}\n')
 
     def clear(self):
-        '''Clear list of excluded files.'''
+        '''Clear list of excluded files.
+        '''
         open(self._filename, 'w').close()
         self._files.clear()
 
@@ -107,5 +119,15 @@ class SkipFiles:
         return True if len(self._files) == 0 else False
 
     def length(self):
-        '''Return length of exclusion list.'''
+        '''Return length of exclusion list.
+        '''
         return len(self._files)
+
+    def get_defaults(self):
+        '''Get defualt values.
+
+        Returns:
+            SET: Default skip file values
+        '''
+        return {'desktop.ini'}
+
