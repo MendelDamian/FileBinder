@@ -1,5 +1,6 @@
 import os
 import json
+from FileBinder.get_download_path import get_download_path
 
 
 class Categories:
@@ -9,6 +10,7 @@ class Categories:
         self._filename = 'categories.json'
         self.create_file()
         self.read()
+        self.create_dirs()
 
     def create_file(self):
         '''Creates json file and fills it with default values.
@@ -18,6 +20,11 @@ class Categories:
 
     def add(self, categories):
         '''Add new categories
+
+        Format:
+            {PATH_TO_LISTEN: 
+                {CATEGORY: ['.extensions']}
+            }
         
         Args:
             categories (DICT): New categories
@@ -49,37 +56,16 @@ class Categories:
         '''
         return self._categories
 
-    def create_dirs(self, path):
+    def create_dirs(self):
         '''Create directories for categories.
         '''
-        for cat in self._categories.keys():
-            fpath = os.path.join(path, cat)
-            if not os.path.isdir(fpath):
-                os.makedirs(fpath)
-                print(f'Creating new directory: {fpath}')
 
-        # Hard coded one directory
-        if not os.path.isdir(os.path.join(path, 'Other')):
-            os.makedirs('Other')
-            print(f'Creating new directory: Other')
-
-    # def edit_filename(self, new_filename):
-    #     '''Edit filename of categories.
-        
-    #     args:
-    #         new_filename: Name of new file
-    #     '''
-    #     # Check if filename is not empty.
-    #     if not new_filename:
-    #         raise ValueError('Filename cannot be empty.')
-
-    #     # Check if filename has .json extension.
-    #     ext = '.json'
-    #     if new_filename[-4:] != ext:
-    #         new_filename = f'{new_filename}{ext}'
-
-    #     os.rename(self._filename, new_filename)
-    #     self._filename = new_filename
+        for (dir_, cats) in self._categories.items():
+            for cat in cats.keys():
+                dirpath = os.path.join(dir_, cat)
+                if not os.path.isdir(dirpath):
+                    os.makedirs(dirpath)
+                    print(f'Creating new directory: {dirpath}')
 
     def get_defaults(self):
         '''Get default values for categories.
@@ -87,11 +73,15 @@ class Categories:
         Returns:
             DICT: Default categories
         '''
+        download_path = get_download_path()
         return {
-            'Documents': ['.doc', '.docx', '.txt', '.pdf'], 
-            'Photos': ['.jpg', '.png', '.raw'], 
-            'Archives': ['.zip', '.rar', '.tar'], 
-            'Music': ['.mp3', '.flac'], 
-            'Videos': ['.mp4'],
-            'Applications': ['.exe']
+            download_path: {
+                'Documents': ['.doc', '.docx', '.txt', '.pdf'], 
+                'Photos': ['.jpg', '.png', '.raw'], 
+                'Archives': ['.zip', '.rar', '.tar'], 
+                'Music': ['.mp3', '.flac'], 
+                'Videos': ['.mp4'],
+                'Applications': ['.exe'],
+                'Other': []
+            }
         }
