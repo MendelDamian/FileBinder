@@ -21,9 +21,10 @@ def move_files(files, categories):
         for (cat, exts) in categories[dirname].items():
             # Continue if exts if blank or ext is not in exts
             # IF EXTS IS NULL THEN EVERY EXTENSIONS FITS IN
-            if ext not in exts or not exts:
-                continue
-
+            if not exts:
+                if ext not in exts:
+                    continue
+                    
             new_dir = os.path.join(dirname, cat)
             if not os.path.isdir(new_dir):
                 os.makedirs(new_dir)
