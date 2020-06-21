@@ -1,4 +1,5 @@
 import os
+from FileBinder.get_download_path import get_download_path
 
 
 class SkipFiles:
@@ -6,7 +7,7 @@ class SkipFiles:
         '''Skipping files while scanning.
         '''
         self._files = set()
-        self._filename = 'skip.txt'
+        self._filename = 'skip.json'
         self.create_file()
         self.read()
 
@@ -14,9 +15,8 @@ class SkipFiles:
         '''Creates file with defaults settings if doesn't exist.
         '''
         if not os.path.isfile(self._filename):
-            with open(self._filename, 'w') as f:
-                for el in self._files:
-                    f.write(f'{el}\n')
+            self._files = self.get_defaults()
+            self.write()
 
     def read(self):
         '''Read file where are all files to skip.
@@ -26,87 +26,38 @@ class SkipFiles:
         Important.zip
         '''
         with open(self._filename, 'r') as f:
-            lines = f.read().splitlines()
-            lines = [l.strip() for l in lines if l]
-            self._files.update(lines)
+            for item in f:
+                self._files.add(item)
 
-    def add(self, filename):
+    def add(self, fnames):
         '''Add new file to list.
         
         Args:
-            filename (String): name of new exluded files.
-        
-        Returns:
-            None: If all passed files were already in list.
-        
-        Raises:
-            ValueError: Filename cannot be empty.
+            filename (LIST SET TUPLE): paths of new exluded files.
         '''
-        if type(filename) in [tuple, list, set]:
-            filename = [fn.strip() for fn in filename if fn and fn not in self._files]
-            # If empty = all passed files were already in list.
-            if not filename:
-                return None
-        else:
-            filename = filename.strip()
-
-        # Check if filename is not empty.
-        if not filename:
-            raise ValueError('Filename cannot be empty.')
-
-        self._files.update(filename)
-        with open(self._filename, 'a') as f:
-            for fn in filename:
-                f.write(f'{fn}\n')
+        self._files.update(fnames)
+        self.write()
 
     def get(self):
         '''Return list of excluded files.
         '''
         return self._files
 
-    # def edit_filename(self, new_filename):
-    #     '''Edit filename of exclusion list.
-        
-    #     args:
-    #         new_filename: Name of new file
-    #     '''
-    #     # Check if filename is not empty.
-    #     if not new_filename:
-    #         raise ValueError('Filename cannot be empty.')
-
-    #     # Check if filename has .txt extension.
-    #     if new_filename[-4:] != '.txt':
-    #         new_filename = f'{new_filename}.txt'
-
-    #     os.rename(self._filename, new_filename)
-    #     self._filename = new_filename
+    def write(self):
+        '''Write to a file
+        '''
+        with open(self._filename, 'w') as f:
+            for item in self._files:
+                f.write(f'{item}\n')
 
     def remove(self, excluded):
         '''Remove specific registration from set and file.
 
         args:
-            excluded: Name of exluded file or directory
+            excluded (LIST SET TUPLE): Path of exluded file or directory
         '''
-        if type(excluded) in [tuple, list, set]:
-            excluded = [ex.strip() for ex in excluded if ex]
-        else:
-            excluded = excluded.strip()
-
-        if not excluded:
-            raise ValueError('Filename cannot be empty.')
-
-        # From self._files.
-        for ex in excluded:
-            self._filename.discard(ex)
-
-        # From 'skip.txt' or other file if ealier changed.
-        with open(self._filename, 'r+') as f:
-            lines = f.readlines()
-            f.seek(0)
-            for line in lines:
-                line = line.strip()
-                if line and line not in excluded:
-                    f.write(f'{line}\n')
+        self._files.difference(excluded)
+        self.write()
 
     def clear(self):
         '''Clear list of excluded files.
@@ -129,5 +80,6 @@ class SkipFiles:
         Returns:
             SET: Default skip file values
         '''
-        return {'desktop.ini'}
+        download_path = get_download_path()
+        return {os.path.join(download_path, 'desktop.ini'), os.path.join(download_path, 'important.zip')}
 

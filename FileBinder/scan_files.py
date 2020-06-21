@@ -15,9 +15,7 @@ def scan_files(categories):
     files = set()
 
     for (_dir, cats) in categories.items():
-        skip_cat = set()
-        for cat in cats.keys():
-            skip_cat.add(cat)
+        skip_cat = set(cats.keys())
 
         for file in os.listdir(_dir):
             scanned_files = set([file]).difference(skip)
