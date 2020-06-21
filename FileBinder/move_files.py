@@ -21,7 +21,8 @@ def move_files(files, categories):
         for (cat, exts) in categories[dirname].items():
             # Continue if exts if blank or ext is not in exts
             # IF EXTS IS NULL THEN EVERY EXTENSIONS FITS IN
-            if not exts:
+
+            if exts:
                 if ext not in exts:
                     continue
                     
