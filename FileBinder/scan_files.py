@@ -20,7 +20,15 @@ def scan_files(categories):
         for file in os.listdir(_dir):
             scanned_files = set([file]).difference(skip)
             scanned_files = scanned_files.difference(skip_cat)
+
             if scanned_files:
                 files.add(os.path.join(_dir, file))
+
+    # SKIP NOT DOWNLOADED YET FILES
+    for file in files:
+        if file[-5:] != '.part':
+            continue
+        files.discard(file)
+        files.discard(file[:-5])
 
     return files
